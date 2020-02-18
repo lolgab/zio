@@ -116,10 +116,8 @@ lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
 
 lazy val coreNative = core.native
-  .settings(scalaVersion := "2.11.12")
+  .settings(scalaNativeSettings)
   .settings(skip in Test := true)
-  .settings(skip in doc := true)
-  .settings(sources in (Compile, doc) := Seq.empty)
   .settings(
     libraryDependencies ++= Seq(
       "dev.whaling" %%% "native-loop-core"      % "0.1.1",
@@ -152,9 +150,7 @@ lazy val coreTestsJS = coreTests.js
   .dependsOn(testRunnerJS)
 
 lazy val coreTestsNative = coreTests.native
-  .settings(scalaVersion := "2.11.12")
-  .settings(skip in doc := true)
-  .settings(sources in (Compile, doc) := Seq.empty)
+  .settings(scalaNativeSettings)
   .settings(
     libraryDependencies ++= Seq(
       "dev.whaling" %%% "native-loop-core"      % "0.1.1",
@@ -234,21 +230,18 @@ lazy val testJS = test.js.settings(
 )
 
 lazy val testNative = test.native
-  .settings(scalaVersion := "2.11.12")
-  .settings(skip in Test := true)
-  .settings(skip in doc := true)
-  .settings(sources in (Compile, doc) := Seq.empty)
+  .settings(scalaNativeSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "dev.whaling" %%% "native-loop-core"      % "0.1.1",
-      "dev.whaling" %%% "native-loop-js-compat" % "0.1.1",
-      "org.scala-native" %%% "test-interface" % "0.4.0-M2",
-      "org.scalacheck" %%% "scalacheck" % "1.14.3"
+      "dev.whaling"      %%% "native-loop-core"      % "0.1.1",
+      "dev.whaling"      %%% "native-loop-js-compat" % "0.1.1",
+      "org.scala-native" %%% "test-interface"        % nativeVersion,
+      "org.scalacheck"   %%% "scalacheck"            % "1.14.3"
     ),
     nativeLinkStubs := true
   )
 
-lazy val testTests = crossProject(JSPlatform, JVMPlatform)
+lazy val testTests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("test-tests"))
   .dependsOn(test)
   .settings(stdSettings("test-tests"))
@@ -262,6 +255,10 @@ lazy val testTests = crossProject(JSPlatform, JVMPlatform)
 lazy val testTestsJVM = testTests.jvm.settings(dottySettings)
 lazy val testTestsJS = testTests.js.settings(
   libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-RC3"
+)
+lazy val testTestsNative = testTests.native.settings(
+  scalaNativeSettings
+  // libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-RC3"
 )
 
 lazy val testMagnolia = crossProject(JVMPlatform, JSPlatform)
@@ -318,9 +315,9 @@ lazy val testRunner = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       "org.portable-scala" %%% "portable-scala-reflect" % "1.0.0"
     )
   )
-  .jsSettings(libraryDependencies ++= Seq("org.scala-js" %% "scalajs-test-interface" % "0.6.32"))
+  .jsSettings(libraryDependencies ++= Seq("org.scala-js" %% "scalajs-test-interface" % scalaJSVersion))
   .jvmSettings(libraryDependencies ++= Seq("org.scala-sbt" % "test-interface" % "1.0"))
-  .nativeSettings(libraryDependencies ++= Seq("org.scala-native" %%% "test-interface" % "0.4.0-M2"))
+  .nativeSettings(libraryDependencies ++= Seq("org.scala-native" %%% "test-interface" % nativeVersion))
   .dependsOn(core)
   .dependsOn(test)
 
@@ -334,6 +331,7 @@ lazy val testJunitRunnerJVM = testJunitRunner.jvm.settings(dottySettings)
 
 lazy val testRunnerJVM = testRunner.jvm.settings(dottySettings)
 lazy val testRunnerNative = testRunner.native
+  .settings(scalaNativeSettings)
 lazy val testRunnerJS = testRunner.js
   .settings(
     libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-RC3" % Test

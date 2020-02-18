@@ -1,3 +1,5 @@
+package repl
+
 import com.github.ghik.silencer.silent
 
 import zio.test._

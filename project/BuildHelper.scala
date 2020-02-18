@@ -83,6 +83,13 @@ object BuildHelper {
     }
   )
 
+  val scalaNativeSettings = Seq(
+    scalaVersion := "2.11.12",
+    crossScalaVersions := Seq("2.11.12"),
+    skip in doc := true,
+    sources in (Compile, doc) := Seq.empty
+  )
+
   val scalaReflectSettings = Seq(
     libraryDependencies ++=
       (if (isDotty.value) Seq()
